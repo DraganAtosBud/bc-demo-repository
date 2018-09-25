@@ -5,6 +5,8 @@ import web3 from '../ethereum/web3';
 import Layout from '../components/Layout';
 
 class SupplyIndex extends Component{
+
+
   state = {
       errorMessage: '',
       loading: false
@@ -18,7 +20,7 @@ class SupplyIndex extends Component{
     try {
      const accounts = await web3.eth.getAccounts();
      await factory.methods
-       .createSupplyChain('Adam', product.name, web3.utils.toWei(product.price))
+       .createSupplyChain('Adam', product.name, web3.utils.toWei(product.price), product.seller)
        .send({
          from: accounts[0], value: web3.utils.toWei(product.price)
        });
@@ -35,9 +37,9 @@ class SupplyIndex extends Component{
 
     const items =
     [
-      {name: 'Product 1', price:'0.1', sellerName:'Seller 1'},
-      {name: 'Product 2', price:'0.05', sellerName:'Seller 1'},
-      {name: 'Product 3', price:'0.01', sellerName:'Seller 2'}]
+      {name: 'Product 1', price:'0.1', sellerName:'Seller 1', seller:'0x2822a11b98462eb6aeaaeebd59b1656969bf147b'},
+      {name: 'Product 2', price:'0.05', sellerName:'Seller 1', seller:'0x2822a11b98462eb6aeaaeebd59b1656969bf147b'},
+      {name: 'Product 3', price:'0.01', sellerName:'Seller 2', seller:'0x690a4f7a854ccfb3e83abbdb5a19e16413e96c55'}]
     .map(p=>{
       return{
         header: p.name,
