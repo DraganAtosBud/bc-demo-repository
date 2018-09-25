@@ -7,7 +7,7 @@ contract SupplyChainFactory
   function createSupplyChain(string buyerName, string orderDescription, uint orderPrice, address sellerAddress) public payable {
       address newSupplyChain = (new SupplyChain).value(msg.value)(msg.sender, buyerName, orderDescription, orderPrice, sellerAddress);
       address[] existingAddresses = deployedSupplyChains[msg.sender];
-      existingAddresses.push(newSupplyChain);
+      existingAddresses.push(newSupplyChain); 
       deployedSupplyChains[msg.sender] = existingAddresses;
   }
 
