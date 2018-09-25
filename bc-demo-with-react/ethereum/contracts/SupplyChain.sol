@@ -2,20 +2,18 @@ pragma solidity ^0.4.6;
 
 contract SupplyChainFactory
 {
-    address[] public deployedSupplyChains;
+  mapping(address=>address[]) public deployedSupplyChains;
 
-    function createSupplyChain(string buyerName, string orderDescription, uint orderPrice) public payable {
+  function createSupplyChain(string buyerName, string orderDescription, uint orderPrice, address sellerAddress) public payable {
+      address newSupplyChain = (new SupplyChain).value(msg.value)(msg.sender, buyerName, orderDescription, orderPrice, sellerAddress);
+      address[] existingAddresses = deployedSupplyChains[msg.sender];
+      existingAddresses.push(newSupplyChain);
+      deployedSupplyChains[msg.sender] = existingAddresses;
+  }
 
-        address newSupplyChain = (new SupplyChain).value(msg.value)(msg.sender, buyerName, orderDescription, orderPrice);
-        deployedSupplyChains.push(newSupplyChain);
-
-    }
-
-    function getDeployedSupplyChains() public view returns (address[]) {
-
-        return deployedSupplyChains;
-
-    }
+  function getDeployedSupplyChains() public view returns (address[]) {
+      return deployedSupplyChains[msg.sender];
+  }
 }
 
 contract SupplyChain
@@ -58,13 +56,14 @@ contract SupplyChain
 
     address temporaryMoneyStorageAddress; //set default value
 
-    constructor (address creatorAddress, string buyerName, string orderDescription, uint orderPrice) public payable {
+    constructor (address creatorAddress, string buyerName, string orderDescription, uint orderPrice,address seller) public payable {
 
         buyerAddress = creatorAddress;
         buyer = buyerName;
         order.Description = orderDescription;
         order.Price = orderPrice;
         order.Status = "Placed";
+        sellerAddress = seller;
 
         // send money from buyerAddress to temporaryMoneyStorageAddress (contract)
         //buyerAddress.transfer(orderPrice);
@@ -75,6 +74,7 @@ contract SupplyChain
 
         order.Status = "Rejected";
         order.StatusMessage = orderStatusMessage;
+        buyerAddress.transfer(this.balance);
 
         // return money from temporaryMoneyStorageAddress (contract) to buyerAddress
         //buyerAddress.transfer(order.Price);
@@ -133,7 +133,7 @@ contract SupplyChain
         shippingSteps.push(ss);
 
         // send money from temporaryMoneyStorageAddress (contract) to sellerAddress
-        //sellerAddress.transfer(order.Price);
+        sellerAddress.transfer(this.balance);
 
     }
 
