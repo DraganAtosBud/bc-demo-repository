@@ -59,7 +59,7 @@ class SupplyShow extends Component {
         description: step.statusMessage
       };
     })
-
+    console.log(items);
     return <List items={items}/>;
   }
 

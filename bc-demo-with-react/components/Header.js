@@ -20,6 +20,11 @@ export default () => {
            <a className="item">My Deliveries</a>
          </Link>
        </Menu.Menu>
+       <Menu.Menu>
+         <Link route="/shipping/all">
+           <a className="item">In progress</a>
+         </Link>
+       </Menu.Menu>
      </Menu>
    );
 };
