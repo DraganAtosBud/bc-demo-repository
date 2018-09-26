@@ -5,6 +5,12 @@ import Layout from '../../components/Layout';
 import Supply from '../../ethereum/supply';
 
 class SupplyShow extends Component {
+
+  state = {
+      errorMessage: '',
+      loading: false
+    };
+
   static async getInitialProps(props) {
     const supply = Supply(props.query.address);
     const orderInfo = await supply.methods.getOrderInfo().call();
@@ -51,11 +57,31 @@ class SupplyShow extends Component {
     return <Card.Group items={items}/>;
   }
 
+  startShipping = async (event) => {
+    event.preventDefault();
+    const supply = Supply(this.props.address);
+
+    this.setState({ loading: true, errorMessage: '' });
+
+    try {
+     const accounts = await web3.eth.getAccounts();
+     await supply.methods.startShipping('My Company', accounts[0], "We start the shipping now!", "China")
+     .send({
+       from: accounts[0]
+     });
+
+   } catch (err) {
+     this.setState({ errorMessage: err.message});
+   }
+
+   this.setState({ loading: false });
+  };
+
   renderShippingInfoCards() {
     const shippingSteps = this.props.shippingInfo;
     const items = shippingSteps.map(step => {
       return {
-        header: step.company + step.timeStamp,
+        header: step.company + ' ' + step.timeStamp,
         description: step.statusMessage
       };
     })
@@ -79,6 +105,7 @@ class SupplyShow extends Component {
         <Grid.Row>
           <Card.Group>
             <Card header={this.props.shippingStatus} meta='Shipping status'/>
+            <Button loading={this.state.loading} onClick={this.startShipping.bind(this)} primary >Start Shipping</Button>
           </Card.Group>
         </Grid.Row>
         <Grid.Row>
