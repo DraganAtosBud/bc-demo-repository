@@ -5,11 +5,11 @@ import web3 from '../../ethereum/web3';
 import { Link } from '../../routes';
 import factory from '../../ethereum/factory';
 
-class SupplyAllIndex extends Component {
+class DeliveriesIndex extends Component {
 
   static async getInitialProps() {
     const accounts = await web3.eth.getAccounts();
-    const supplies = await factory.methods.getDeployedSupplyChainsByBuyer().call({from:accounts[0]});
+    const supplies = await factory.methods.getDeployedSupplyChainsBySeller().call({from:accounts[0]});
     return { supplies };
     }
 
@@ -18,8 +18,8 @@ class SupplyAllIndex extends Component {
       return {
         header: 'Order Address: ' + address,
         description: (
-          <Link route={`/orders/${address}`}>
-            <a>View Order</a>
+          <Link route={`/deliveries/${address}`}>
+            <a>View Delivery</a>
           </Link>
         ),
         fluid: true
@@ -33,7 +33,7 @@ class SupplyAllIndex extends Component {
     return (
       <Layout>
         <div>
-          <h3>My Orders</h3>
+          <h3>My Deliveries</h3>
 
           {this.renderOrders()}
         </div>
@@ -43,4 +43,4 @@ class SupplyAllIndex extends Component {
 
 }
 
-export default SupplyAllIndex;
+export default DeliveriesIndex;
