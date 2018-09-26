@@ -79,15 +79,18 @@ class SupplyShow extends Component {
 
   renderShippingInfoCards() {
     const shippingSteps = this.props.shippingInfo;
-    const items = shippingSteps.map(step => {
-      return {
-        header: step.company + ' ' + step.timeStamp,
-        description: step.statusMessage
-      };
-    })
-    console.log(items);
-    return <List items={items}/>;
+    let i = 0;
+    const items = shippingSteps.map(step =>
+      <List.Item key={i++}>
+        <List.Content>
+          <List.Header>{(new Date(step.timeStamp*1000)).toString()} - {step.company}</List.Header>
+          <List.Description>{step.status}</List.Description>
+        </List.Content>
+      </List.Item>
+    )
+    return items;
   }
+
 
   render() {
     return (<Layout>
@@ -109,7 +112,9 @@ class SupplyShow extends Component {
           </Card.Group>
         </Grid.Row>
         <Grid.Row>
+          <List bulleted>
           {this.renderShippingInfoCards()}
+          </List>
         </Grid.Row>
       </Grid>
     </Layout>);
