@@ -3,6 +3,7 @@ import { Card, Button, Message } from 'semantic-ui-react';
 import factory from '../ethereum/factory';
 import web3 from '../ethereum/web3';
 import Layout from '../components/Layout';
+import { Router } from '../routes';
 
 class SupplyIndex extends Component{
 

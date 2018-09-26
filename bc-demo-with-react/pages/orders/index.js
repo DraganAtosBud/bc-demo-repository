@@ -10,15 +10,16 @@ class SupplyShow extends Component {
   static async getInitialProps() {
     const accounts = await web3.eth.getAccounts();
     const supplies = await factory.methods.getDeployedSupplyChains().call({from:accounts[0]});
+    console.log(supplies);
     return { supplies };
     }
 
     renderOrders() {
       const items = this.props.supplies.map(address => {
       return {
-        header: address,
+        header: 'Order Address: ' + address,
         description: (
-          <Link route={`/Orders/${address}`}>
+          <Link route={`/orders/${address}`}>
             <a>View Order</a>
           </Link>
         ),
@@ -33,7 +34,7 @@ class SupplyShow extends Component {
     return (
       <Layout>
         <div>
-          <h3>Orders</h3>
+          <h3>My orders</h3>
 
 
           {this.renderOrders()}
