@@ -7,19 +7,15 @@ contract SupplyChainFactory
   address[] public deployedSupplyChains;
 
   function createSupplyChain(string buyerName, string orderDescription, uint orderPrice, address sellerAddress) public payable {
+    address newSupplyChain = (new SupplyChain).value(msg.value)(msg.sender, buyerName, orderDescription, orderPrice, sellerAddress);
+    address[] storage existingAddressesByBuyer = deployedSupplyChainsByBuyer[msg.sender];
+    existingAddressesByBuyer.push(newSupplyChain);
+    deployedSupplyChainsByBuyer[msg.sender] = existingAddressesByBuyer;
 
-      address newSupplyChain = (new SupplyChain).value(msg.value)(msg.sender, buyerName, orderDescription, orderPrice, sellerAddress);
-
-      address[] existingAddressesByBuyer = deployedSupplyChainsByBuyer[msg.sender];
-      existingAddressesByBuyer.push(newSupplyChain);
-      deployedSupplyChainsByBuyer[msg.sender] = existingAddressesByBuyer;
-
-      address[] existingAddressesBySeller = deployedSupplyChainsBySeller[sellerAddress];
-      existingAddressesBySeller.push(newSupplyChain);
-      deployedSupplyChainsBySeller[msg.sender] = existingAddressesBySeller;
-
-      deployedSupplyChains.push(newSupplyChain);
-
+    address[] storage existingAddressesBySeller = deployedSupplyChainsBySeller[sellerAddress];
+    existingAddressesBySeller.push(newSupplyChain);
+    deployedSupplyChainsBySeller[sellerAddress] = existingAddressesBySeller;
+    deployedSupplyChains.push(newSupplyChain);
   }
 
   function getDeployedSupplyChainsByBuyer() public view returns (address[]) {
@@ -76,14 +72,14 @@ contract SupplyChain
 
     address temporaryMoneyStorageAddress; //set default value
 
-    constructor (address creatorAddress, string buyerName, string orderDescription, uint orderPrice,address seller) public payable {
+    constructor (address creatorAddress, string buyerName, string orderDescription, uint orderPrice, address sellerAddr) public payable {
 
         buyerAddress = creatorAddress;
         buyer = buyerName;
         order.Description = orderDescription;
         order.Price = orderPrice;
         order.Status = "Placed";
-        sellerAddress = seller;
+        sellerAddress = sellerAddr;
 
         // send money from buyerAddress to temporaryMoneyStorageAddress (contract)
         //buyerAddress.transfer(orderPrice);
@@ -94,7 +90,7 @@ contract SupplyChain
 
         order.Status = "Rejected";
         order.StatusMessage = orderStatusMessage;
-        buyerAddress.transfer(this.balance);
+        buyerAddress.transfer(address(this).balance);
 
         // return money from temporaryMoneyStorageAddress (contract) to buyerAddress
         //buyerAddress.transfer(order.Price);
@@ -153,7 +149,7 @@ contract SupplyChain
         shippingSteps.push(ss);
 
         // send money from temporaryMoneyStorageAddress (contract) to sellerAddress
-        sellerAddress.transfer(this.balance);
+        sellerAddress.transfer(address(this).balance);
 
     }
 
@@ -176,7 +172,7 @@ contract SupplyChain
         }
         else {
             return "Shipping Not Started";
-        }       
+        }
 
     }
 
@@ -209,6 +205,20 @@ contract SupplyChain
         }
 
     }
+
+   function getShippingStep(uint index) public view returns (uint, string, address, string, uint256, string) {
+
+        return (
+          shippingSteps[index].ShippingNumber,
+          shippingSteps[index].Company,
+          shippingSteps[index].CompanyAddress,
+          shippingSteps[index].Location,
+          shippingSteps[index].Timestamp,
+          shippingSteps[index].StatusMessage
+        );
+
+    }
+
 
     function refund() public payable {
 

@@ -10,7 +10,7 @@ export default () => {
        </Link>
 
        <Menu.Menu>
-         <Link route="/orders/index">
+         <Link route="/orders/">
            <a className="item">My orders</a>
          </Link>
 

@@ -5,12 +5,11 @@ import web3 from '../../ethereum/web3';
 import { Link } from '../../routes';
 import factory from '../../ethereum/factory';
 
-class SupplyShow extends Component {
+class SupplyAllIndex extends Component {
 
   static async getInitialProps() {
     const accounts = await web3.eth.getAccounts();
     const supplies = await factory.methods.getDeployedSupplyChains().call({from:accounts[0]});
-    console.log(supplies);
     return { supplies };
     }
 
@@ -45,4 +44,4 @@ class SupplyShow extends Component {
 
 }
 
-export default SupplyShow;
+export default SupplyAllIndex;
