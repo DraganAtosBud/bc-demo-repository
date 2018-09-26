@@ -25,7 +25,6 @@ class SupplyIndex extends Component{
        .send({
          from: accounts[0], value: web3.utils.toWei(product.price)
        });
-     Router.pushRoute('/');
    } catch (err) {
      this.setState({ errorMessage: err.message});
    }

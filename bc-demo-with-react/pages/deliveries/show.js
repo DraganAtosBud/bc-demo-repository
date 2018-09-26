@@ -5,11 +5,16 @@ import Layout from '../../components/Layout';
 import Supply from '../../ethereum/supply';
 
 class SupplyShow extends Component {
+  constructor(props){
+    super(props);
+    this.state = {
+          errorMessage: '',
+          loading: false,
+          orderStatus : props.orderInfo.status,
+          shippingStatus: props.shippingStatus
+        };
+  }
 
-  state = {
-      errorMessage: '',
-      loading: false
-    };
 
   static async getInitialProps(props) {
     const supply = Supply(props.query.address);
@@ -34,10 +39,9 @@ class SupplyShow extends Component {
 
   renderOrderInfoCards() {
     const {buyerName, orderNo, orderDescription, orderPrice, status} = this.props.orderInfo;
-
     const items = [
       {
-        header: status,
+        header: this.state.orderStatus,
         meta: 'Status'
       }, {
         header: orderNo,
@@ -69,7 +73,10 @@ class SupplyShow extends Component {
      .send({
        from: accounts[0]
      });
+     const orderStatus = await supply.methods.getOrderStatus().call();
+     const shippingStatus = await supply.methods.getShippingStatus().call();
 
+     this.setState({orderStatus: orderStatus, shippingStatus: shippingStatus});
    } catch (err) {
      this.setState({ errorMessage: err.message});
    }
@@ -78,6 +85,7 @@ class SupplyShow extends Component {
   };
 
   renderShippingInfoCards() {
+
     const shippingSteps = this.props.shippingInfo;
     let i = 0;
     const items = shippingSteps.map(step =>
@@ -107,7 +115,7 @@ class SupplyShow extends Component {
         </Grid.Row>
         <Grid.Row>
           <Card.Group>
-            <Card header={this.props.shippingStatus} meta='Shipping status'/>
+            <Card header={this.state.shippingStatus} meta='Shipping status'/>
             <Button loading={this.state.loading} onClick={this.startShipping.bind(this)} primary >Start Shipping</Button>
           </Card.Group>
         </Grid.Row>
