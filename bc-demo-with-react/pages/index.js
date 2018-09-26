@@ -21,7 +21,7 @@ class SupplyIndex extends Component{
     try {
      const accounts = await web3.eth.getAccounts();
      await factory.methods
-       .createSupplyChain('Adam', product.name, web3.utils.toWei(product.price), product.seller)
+       .createSupplyChain('Adam', product.name, web3.utils.toWei(product.price), product.seller, product.sellerName)
        .send({
          from: accounts[0], value: web3.utils.toWei(product.price)
        });

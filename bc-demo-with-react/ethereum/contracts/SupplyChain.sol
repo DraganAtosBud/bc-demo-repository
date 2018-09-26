@@ -6,9 +6,9 @@ contract SupplyChainFactory
   mapping(address=>address[]) public deployedSupplyChainsBySeller;
   address[] public deployedSupplyChains;
 
-  function createSupplyChain(string buyerName, string orderDescription, uint orderPrice, address sellerAddress) public payable {
+  function createSupplyChain(string buyerName, string orderDescription, uint orderPrice, address sellerAddress, string sellerName) public payable {
     uint256 orderNo = deployedSupplyChains.length + 1000;
-    address newSupplyChain = (new SupplyChain).value(msg.value)(msg.sender, buyerName, orderDescription, orderPrice, sellerAddress, orderNo);
+    address newSupplyChain = (new SupplyChain).value(msg.value)(msg.sender, buyerName, orderDescription, orderPrice, sellerAddress, orderNo, sellerName);
     address[] storage existingAddressesByBuyer = deployedSupplyChainsByBuyer[msg.sender];
     existingAddressesByBuyer.push(newSupplyChain);
     deployedSupplyChainsByBuyer[msg.sender] = existingAddressesByBuyer;
@@ -73,7 +73,7 @@ contract SupplyChain
 
     address temporaryMoneyStorageAddress; //set default value
 
-    constructor (address creatorAddress, string buyerName, string orderDescription, uint orderPrice, address sellerAddr, uint256 orderNo) public payable {
+    constructor (address creatorAddress, string buyerName, string orderDescription, uint orderPrice, address sellerAddr, uint256 orderNo, string sellerName) public payable {
 
         buyerAddress = creatorAddress;
         buyer = buyerName;
@@ -82,6 +82,7 @@ contract SupplyChain
         order.Status = "Placed";
         sellerAddress = sellerAddr;
         order.Number = orderNo;
+        seller = sellerName;
 
         // send money from buyerAddress to temporaryMoneyStorageAddress (contract)
         //buyerAddress.transfer(orderPrice);

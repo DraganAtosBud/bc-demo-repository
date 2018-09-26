@@ -29,6 +29,7 @@ class SupplyShow extends Component {
     }
     const info = {
       buyerName: orderInfo[0],
+      sellerName: orderInfo[1],
       orderNo: orderInfo[2],
       orderDescription: orderInfo[3],
       orderPrice: orderInfo[4],
@@ -38,7 +39,7 @@ class SupplyShow extends Component {
   }
 
   renderOrderInfoCards() {
-    const {buyerName, orderNo, orderDescription, orderPrice, status} = this.props.orderInfo;
+    const {buyerName, sellerName, orderNo, orderDescription, orderPrice, status} = this.props.orderInfo;
     const items = [
       {
         header: this.state.orderStatus,
@@ -64,12 +65,13 @@ class SupplyShow extends Component {
   startShipping = async (event) => {
     event.preventDefault();
     const supply = Supply(this.props.address);
+    const sellerName = this.props.orderInfo.sellerName;
 
     this.setState({ loading: true, errorMessage: '' });
 
     try {
      const accounts = await web3.eth.getAccounts();
-     await supply.methods.startShipping('My Company', accounts[0], "We start the shipping now!", "China")
+     await supply.methods.startShipping(sellerName, accounts[0], "We start the shipping now!", "China")
      .send({
        from: accounts[0]
      });
