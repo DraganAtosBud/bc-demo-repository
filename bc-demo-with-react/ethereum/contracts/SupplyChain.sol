@@ -2,18 +2,38 @@ pragma solidity ^0.4.6;
 
 contract SupplyChainFactory
 {
-  mapping(address=>address[]) public deployedSupplyChains;
+  mapping(address=>address[]) public deployedSupplyChainsByBuyer;
+  mapping(address=>address[]) public deployedSupplyChainsBySeller;
+  address[] public deployedSupplyChains;
 
   function createSupplyChain(string buyerName, string orderDescription, uint orderPrice, address sellerAddress) public payable {
+
       address newSupplyChain = (new SupplyChain).value(msg.value)(msg.sender, buyerName, orderDescription, orderPrice, sellerAddress);
-      address[] existingAddresses = deployedSupplyChains[msg.sender];
-      existingAddresses.push(newSupplyChain); 
-      deployedSupplyChains[msg.sender] = existingAddresses;
+
+      address[] existingAddressesByBuyer = deployedSupplyChainsByBuyer[msg.sender];
+      existingAddressesByBuyer.push(newSupplyChain);
+      deployedSupplyChainsByBuyer[msg.sender] = existingAddressesByBuyer;
+
+      address[] existingAddressesBySeller = deployedSupplyChainsBySeller[sellerAddress];
+      existingAddressesBySeller.push(newSupplyChain);
+      deployedSupplyChainsBySeller[msg.sender] = existingAddressesBySeller;
+
+      deployedSupplyChains.push(newSupplyChain);
+
+  }
+
+  function getDeployedSupplyChainsByBuyer() public view returns (address[]) {
+      return deployedSupplyChainsByBuyer[msg.sender];
+  }
+
+  function getDeployedSupplyChainsBySeller() public view returns (address[]) {
+      return deployedSupplyChainsBySeller[msg.sender];
   }
 
   function getDeployedSupplyChains() public view returns (address[]) {
-      return deployedSupplyChains[msg.sender];
+      return deployedSupplyChains;
   }
+
 }
 
 contract SupplyChain
@@ -151,7 +171,12 @@ contract SupplyChain
 
     function getShippingStatus() public view returns (string) {
 
-        return shippings[shippings.length - 1].Status;
+        if (shippings.length > 0) {
+            return shippings[shippings.length - 1].Status;
+        }
+        else {
+            return "Shipping Not Started";
+        }       
 
     }
 
