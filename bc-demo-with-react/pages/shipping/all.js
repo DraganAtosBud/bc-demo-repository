@@ -24,7 +24,7 @@ class OrderAll extends Component {
     const items = this.props.inProgress.map(address => {
       return {
         header: 'Order Address: ' + address,
-        description: (<Link route={`/orders/${address}`}>
+        description: (<Link route={`/shipping/${address}`}>
           <a>Update shipping</a>
         </Link>),
         fluid: true
