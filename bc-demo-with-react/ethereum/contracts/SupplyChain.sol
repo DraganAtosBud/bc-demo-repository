@@ -7,7 +7,8 @@ contract SupplyChainFactory
   address[] public deployedSupplyChains;
 
   function createSupplyChain(string buyerName, string orderDescription, uint orderPrice, address sellerAddress) public payable {
-    address newSupplyChain = (new SupplyChain).value(msg.value)(msg.sender, buyerName, orderDescription, orderPrice, sellerAddress);
+    uint256 orderNo = deployedSupplyChains.length + 1000;
+    address newSupplyChain = (new SupplyChain).value(msg.value)(msg.sender, buyerName, orderDescription, orderPrice, sellerAddress, orderNo);
     address[] storage existingAddressesByBuyer = deployedSupplyChainsByBuyer[msg.sender];
     existingAddressesByBuyer.push(newSupplyChain);
     deployedSupplyChainsByBuyer[msg.sender] = existingAddressesByBuyer;
@@ -36,7 +37,7 @@ contract SupplyChain
 {
     struct Order
     {
-        string Number;
+        uint Number;
         string Description;
         uint Price;
         string Status; // Placed, Accepted, Rejected, ShippingInProgress, ShippingFinished, Closed
@@ -72,7 +73,7 @@ contract SupplyChain
 
     address temporaryMoneyStorageAddress; //set default value
 
-    constructor (address creatorAddress, string buyerName, string orderDescription, uint orderPrice, address sellerAddr) public payable {
+    constructor (address creatorAddress, string buyerName, string orderDescription, uint orderPrice, address sellerAddr, uint256 orderNo) public payable {
 
         buyerAddress = creatorAddress;
         buyer = buyerName;
@@ -80,6 +81,7 @@ contract SupplyChain
         order.Price = orderPrice;
         order.Status = "Placed";
         sellerAddress = sellerAddr;
+        order.Number = orderNo;
 
         // send money from buyerAddress to temporaryMoneyStorageAddress (contract)
         //buyerAddress.transfer(orderPrice);
@@ -100,7 +102,6 @@ contract SupplyChain
     function startShipping(string shippingCompany, address shippingCompanyAddress, string statusMessage, string location) public {
 
         order.Status = "Shipping In Progress";
-        order.Number = "123456789"; // hardcoded for now
 
         Shipping memory s;
         s.Number = shippings.length + 1000;
@@ -153,7 +154,7 @@ contract SupplyChain
 
     }
 
-    function getOrderInfo() public view returns (string, string, string, string, uint) {
+    function getOrderInfo() public view returns (string, string, uint, string, uint) {
 
         return (buyer, seller, order.Number, order.Description, order.Price);
 

@@ -3,7 +3,7 @@ import SupplyFactory from './build/SupplyChainFactory.json';
 
 const instance  = new web3.eth.Contract(
   JSON.parse(SupplyFactory.interface),
-  '0x6A15979a6253e00dbF86de4acD154Ffc1323E106'
+  '0xECcCb82CBfC289Fc43C4421F4FaBC46B554F17f4'
 );
 
 export default instance;
