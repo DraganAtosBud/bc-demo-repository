@@ -1,8 +1,9 @@
 import React, {Component} from 'react';
-import {Card, Grid, Button, List} from 'semantic-ui-react';
+import {Card, Grid, Button, List, Form, Message, Input} from 'semantic-ui-react';
 import web3 from '../../ethereum/web3';
 import Layout from '../../components/Layout';
 import Supply from '../../ethereum/supply';
+import { Router } from '../../routes';
 
 class SupplyShow extends Component {
   static async getInitialProps(props) {
@@ -66,6 +67,75 @@ class SupplyShow extends Component {
       return items;
     }
 
+    state = {
+      confirmStatusMessage: 'done',
+      confirmLocation: 'my home',
+      confirmErrorMessage: '',
+      confirmDone: false,
+      loading: false
+    };
+  
+    onConfirm = async (event) => { 
+      event.preventDefault();
+      this.setState({ loading: true, confirmErrorMessage: '' });
+
+      const mysupply = Supply(this.props.address);
+      
+      try {
+        const accounts = await web3.eth.getAccounts();
+        await mysupply.methods
+          .confirmReceivedByBuyer(this.state.confirmStatusMessage, this.state.confirmLocation)
+          .send({
+            from: accounts[0]
+          });
+  
+        this.setState({ confirmDone: true });
+        Router.pushRoute('/orders/');
+      } catch (err) {
+        this.setState({ confirmErrorMessage: err.message, confirmDone: false });
+      }
+  
+      this.setState({ loading: false });
+    };
+ 
+    
+    renderConfirm() {
+  
+      const confirmContent = <Card.Content>
+  
+          <Form onSubmit={this.onConfirm} error={!!this.state.confirmErrorMessage} 
+          loading={this.state.loading} success={this.state.confirmDone} >
+          <Form.Field>
+              <Input
+                label="Status Message"
+                labelPosition="right"
+                value={this.state.confirmStatusMessage}
+                placeholder='enter confirmation status message'
+                onChange={event =>
+                  this.setState({ confirmStatusMessage: event.target.value })}
+              />
+            </Form.Field>
+            <Form.Field>
+              <Input
+                label="Location"
+                labelPosition="right"
+                value={this.state.confirmLocation}
+                placeholder='enter location'
+                onChange={event =>
+                  this.setState({ confirmLocation: event.target.value })}
+              />
+            </Form.Field>          
+            <Message error header="Oops!" content={this.state.confirmErrorMessage} />
+            <Message success header='Confirmed' content="Package received" />
+            <Button icon='check' primary type='submit' >
+              Confirm
+            </Button> 
+          </Form>
+      </Card.Content>;
+      return <Card fluid>{confirmContent}</Card>;
+    
+    }
+
   render() {
     return (<Layout>
       <h3>Order {this.props.address}</h3>
@@ -91,6 +161,12 @@ class SupplyShow extends Component {
           <List bulleted>
           {this.renderShippingInfoCards()}
           </List>
+        </Grid.Row>
+        <Grid.Row>
+          <h4>Receive package</h4>
+        </Grid.Row>
+        <Grid.Row>
+          {this.renderConfirm()}
         </Grid.Row>
       </Grid>
     </Layout>);
