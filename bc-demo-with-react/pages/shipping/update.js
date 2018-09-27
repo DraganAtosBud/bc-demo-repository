@@ -48,7 +48,7 @@ class OrderUpdate extends Component {
       const accounts = await web3.eth.getAccounts();
       const supply = Supply(this.props.address);
 
-      await supply.methods.updateShipping(this.state.company, accounts[0], this.state.status, this.state.location, 'OK').send({from: accounts[0]});
+      await supply.methods.updateShipping(this.state.company, this.state.status, this.state.location, 'OK').send({from: accounts[0]});
     } catch (e) {
       this.setState({errorMessage: e.message});
     }
