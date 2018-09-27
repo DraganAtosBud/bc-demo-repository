@@ -71,7 +71,7 @@ class SupplyShow extends Component {
 
     try {
      const accounts = await web3.eth.getAccounts();
-     await supply.methods.startShipping(sellerName, accounts[0], "We are starting the shipping now!", "China")
+     await supply.methods.startShipping(sellerName, "We are starting the shipping now!", "China")
      .send({
        from: accounts[0]
      });
