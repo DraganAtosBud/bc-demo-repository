@@ -122,7 +122,7 @@ describe('SupplyChains', () => {
     assert.equal(orderStatus, 'Shipping Finished');
 
     const shippingStatus = await supplychain.methods.getShippingStatus().call();
-    assert.equal(shippingStatus, 'Confirmed Successfull');
+    assert.equal(shippingStatus, 'Confirmed by user - Successful');
   });
 
 it('Get Order Info', async () => {
