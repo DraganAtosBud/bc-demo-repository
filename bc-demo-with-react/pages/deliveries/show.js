@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {Card, Grid, Button, Header, Icon} from 'semantic-ui-react';
+import {Card, Grid, Button, Header, Icon, Input} from 'semantic-ui-react';
 import web3 from '../../ethereum/web3';
 import Layout from '../../components/Layout';
 import ShippingList from '../../components/ShippingList';
@@ -13,7 +13,8 @@ class SupplyShow extends Component {
           loading: false,
           orderStatus : props.orderInfo.status,
           shippingStatus: props.shippingStatus,
-          refreshShippingList: false
+          refreshShippingList: false,
+          location: ''
       };
   };
 
@@ -66,7 +67,7 @@ class SupplyShow extends Component {
 
     try {
      const accounts = await web3.eth.getAccounts();
-     await supply.methods.startShipping(sellerName, "We are starting the shipping now!", "China")
+     await supply.methods.startShipping(sellerName, "We are starting the shipping now!", this.state.location)
      .send({
        from: accounts[0]
      });
@@ -84,11 +85,16 @@ class SupplyShow extends Component {
   refreshShippingList() {
     this.setState({refreshShippingList: !this.state.refreshShippingList});
   };
-  render() {
 
-    const StartShippingButton = () => (
-      <Button loading={this.state.loading} onClick={this.startShipping.bind(this)} primary >Start Shipping</Button>
-    );
+  renderShippingButton(){
+    return(
+    <div>
+      <Input style={{marginRight: '10px'}} onChange={event => this.setState({ location: event.target.value })} />
+      <Button loading={this.state.loading} disabled={!this.state.location} onClick={this.startShipping.bind(this)} primary >Start Shipping</Button>
+    </div>);
+  };
+  
+  render() {
     let {steps, refreshShippingList} = this.state;
     return (<Layout>
       <h3>Order {this.props.address}</h3>
@@ -114,7 +120,7 @@ class SupplyShow extends Component {
           </Card.Group>
         </Grid.Row>
         <Grid.Row>
-          {this.state.shippingStatus == "Shipping Not Started" && <StartShippingButton />}
+          {this.state.shippingStatus == "Shipping Not Started" && this.renderShippingButton()}
         </Grid.Row>
         <Grid.Row>
           <h5>Shipping History</h5>
