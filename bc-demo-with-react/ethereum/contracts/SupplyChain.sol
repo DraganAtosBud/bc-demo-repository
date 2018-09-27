@@ -2,36 +2,38 @@ pragma solidity ^0.4.6;
 
 contract SupplyChainFactory
 {
-  mapping(address=>address[]) public deployedSupplyChainsByBuyer;
-  mapping(address=>address[]) public deployedSupplyChainsBySeller;
-  address[] public deployedSupplyChains;
+    mapping(address=>address[]) public deployedSupplyChainsByBuyer;
+    mapping(address=>address[]) public deployedSupplyChainsBySeller;
+    address[] public deployedSupplyChains;
 
-  function createSupplyChain(string buyerName, string orderDescription, uint orderPrice, address sellerAddress, string sellerName) public payable {
-    require(msg.value >= orderPrice);
+    function createSupplyChain(string buyerName, string orderDescription, uint orderPrice, address sellerAddress, string sellerName) 
+        public payable {
+        require(msg.value >= orderPrice, "Sent value is less than orderPrice");
 
-    uint256 orderNo = deployedSupplyChains.length + 1000;
-    address newSupplyChain = (new SupplyChain).value(msg.value)(msg.sender, buyerName, orderDescription, orderPrice, sellerAddress, orderNo, sellerName);
-    address[] storage existingAddressesByBuyer = deployedSupplyChainsByBuyer[msg.sender];
-    existingAddressesByBuyer.push(newSupplyChain);
-    deployedSupplyChainsByBuyer[msg.sender] = existingAddressesByBuyer;
+        uint256 orderNo = deployedSupplyChains.length + 1000;
+        address newSupplyChain = (new SupplyChain)
+            .value(msg.value)(msg.sender, buyerName, orderDescription, orderPrice, sellerAddress, orderNo, sellerName);
+        address[] storage existingAddressesByBuyer = deployedSupplyChainsByBuyer[msg.sender];
+        existingAddressesByBuyer.push(newSupplyChain);
+        deployedSupplyChainsByBuyer[msg.sender] = existingAddressesByBuyer;
 
-    address[] storage existingAddressesBySeller = deployedSupplyChainsBySeller[sellerAddress];
-    existingAddressesBySeller.push(newSupplyChain);
-    deployedSupplyChainsBySeller[sellerAddress] = existingAddressesBySeller;
-    deployedSupplyChains.push(newSupplyChain);
-  }
+        address[] storage existingAddressesBySeller = deployedSupplyChainsBySeller[sellerAddress];
+        existingAddressesBySeller.push(newSupplyChain);
+        deployedSupplyChainsBySeller[sellerAddress] = existingAddressesBySeller;
+        deployedSupplyChains.push(newSupplyChain);
+    }
 
-  function getDeployedSupplyChainsByBuyer() public view returns (address[]) {
-      return deployedSupplyChainsByBuyer[msg.sender];
-  }
+    function getDeployedSupplyChainsByBuyer() public view returns (address[]) {
+        return deployedSupplyChainsByBuyer[msg.sender];
+    }
 
-  function getDeployedSupplyChainsBySeller() public view returns (address[]) {
-      return deployedSupplyChainsBySeller[msg.sender];
-  }
+    function getDeployedSupplyChainsBySeller() public view returns (address[]) {
+        return deployedSupplyChainsBySeller[msg.sender];
+    }
 
-  function getDeployedSupplyChains() public view returns (address[]) {
-      return deployedSupplyChains;
-  }
+    function getDeployedSupplyChains() public view returns (address[]) {
+        return deployedSupplyChains;
+    }
 
 }
 
@@ -63,12 +65,12 @@ contract SupplyChain
         string PackageStatus; // OK (default), Lost, Damaged
     }
     modifier restrictedUser() {
-            require(msg.sender == buyerAddress);
-            _;
-        }
+        require(msg.sender == buyerAddress, "Sender must be the buyer");
+        _;
+    }
 
     modifier restrictedSeller() {
-        require(msg.sender == sellerAddress);
+        require(msg.sender == sellerAddress, "Sender must be the seller");
         _;
     }
 
@@ -84,8 +86,9 @@ contract SupplyChain
 
     address temporaryMoneyStorageAddress; //set default value
 
-    constructor (address creatorAddress, string buyerName, string orderDescription, uint orderPrice, address sellerAddr, uint256 orderNo, string sellerName) public payable {
-        require(msg.value >= orderPrice);
+    constructor (address creatorAddress, string buyerName, string orderDescription, uint orderPrice, 
+        address sellerAddr, uint256 orderNo, string sellerName) public payable {
+        require(msg.value >= orderPrice, "Sent value is less than orderPrice");
         buyerAddress = creatorAddress;
         buyer = buyerName;
         order.Description = orderDescription;
@@ -219,17 +222,15 @@ contract SupplyChain
 
     }
 
-   function getShippingStep(uint index) public view returns (uint, string, address, string, uint256, string) {
-
+    function getShippingStep(uint index) public view returns (uint, string, address, string, uint256, string) {
         return (
-          shippingSteps[index].ShippingNumber,
-          shippingSteps[index].Company,
-          shippingSteps[index].CompanyAddress,
-          shippingSteps[index].Location,
-          shippingSteps[index].Timestamp,
-          shippingSteps[index].StatusMessage
+            shippingSteps[index].ShippingNumber,
+            shippingSteps[index].Company,
+            shippingSteps[index].CompanyAddress,
+            shippingSteps[index].Location,
+            shippingSteps[index].Timestamp,
+            shippingSteps[index].StatusMessage
         );
-
     }
 
     function refund() public {
