@@ -20,10 +20,12 @@ beforeEach(async () => {
     .send({ from: accounts[0], gas: '3000000' });
 
   factory.setProvider(provider);
-
-  await factory.methods.createSupplyChain('Default BuyerName','Default orderDescription','100').send({
+  
+  await factory.methods.createSupplyChain('Default BuyerName','Default orderDescription','100', accounts[0], 'default SellerName')
+  .send({
     from: accounts[0],
-    gas: '3000000'
+    gas: '3000000',
+    value: '100'
   });
 
   [supplychainAddress] = await factory.methods.getDeployedSupplyChains().call();
@@ -46,7 +48,7 @@ describe('SupplyChains', () => {
 
   it('Order can be rejected', async () => {
     await supplychain.methods.rejectOrder('Please reject...').send({
-                    value: '200',
+                    gas: '3000000',
                     from: accounts[0]
                   });
     const orderStatus = await supplychain.methods.getOrderStatus().call();
@@ -54,7 +56,7 @@ describe('SupplyChains', () => {
   });
 
   it('Shipping can be started', async () => {
-    await supplychain.methods.startShipping('Shipping company', accounts[1].address, 'New status message', 'New location').send({
+    await supplychain.methods.startShipping('Shipping company', 'New status message', 'New location').send({
                     from: accounts[0],
                     gas: '3000000'
                   });
@@ -67,12 +69,12 @@ describe('SupplyChains', () => {
 
   it('Shipping can be updated', async () => {
 
-    await supplychain.methods.startShipping('Shipping company', accounts[1].address, 'New status message', 'New location').send({
+    await supplychain.methods.startShipping('Shipping company', 'New status message', 'New location').send({
         from: accounts[0],
         gas: '3000000'
       });
 
-    await supplychain.methods.updateShipping('Shipping company 2', accounts[1].address, 'New status message 2', 'New location 2', 'New package status 2')
+    await supplychain.methods.updateShipping('Shipping company 2', 'New status message 2', 'New location 2', 'New package status 2')
             .send({
                     from: accounts[0],
                     gas: '3000000'
@@ -87,7 +89,7 @@ describe('SupplyChains', () => {
 
   it('Shipping cannot be updated, if not started', async () => {
     try{
-        await supplychain.methods.updateShipping('Shipping company 2', accounts[1].address, 'New status message 2', 'New location 2', 'New package status 2')
+        await supplychain.methods.updateShipping('Shipping company 2', 'New status message 2', 'New location 2', 'New package status 2')
                 .send({
                         from: accounts[0],
                         gas: '3000000'
@@ -100,12 +102,12 @@ describe('SupplyChains', () => {
 
   it('Package can be received', async () => {
 
-    await supplychain.methods.startShipping('Shipping company', accounts[1].address, 'New status message', 'New location').send({
+    await supplychain.methods.startShipping('Shipping company', 'New status message', 'New location').send({
         from: accounts[0],
         gas: '3000000'
       });
 
-    await supplychain.methods.updateShipping('Shipping company 2', accounts[1].address, 'New status message 2', 'New location 2', 'New package status 2')
+    await supplychain.methods.updateShipping('Shipping company 2', 'New status message 2', 'New location 2', 'New package status 2')
             .send({
                     from: accounts[0],
                     gas: '3000000'
@@ -129,7 +131,7 @@ it('Get Order Info', async () => {
 
     const orderInfo = await supplychain.methods.getOrderInfo().call();
     assert.equal(orderInfo[0], 'Default BuyerName');  // see beforeEach
-    assert.equal(orderInfo[2], '123456789'); // see Supply chain contract
+    assert.equal(orderInfo[2], '1000'); // see Supply chain contract
     assert.equal(orderInfo[3], 'Default orderDescription'); // see beforeEach
     assert.equal(orderInfo[4], '100'); // see beforeEach
   });
@@ -175,17 +177,17 @@ it('Get Shipping Entities Count', async () => {
 
 async function ShippingChain()
 {
-    await supplychain.methods.startShipping('Shipping company', accounts[1].address, 'New status message', 'New location').send({
+    await supplychain.methods.startShipping('Shipping company', 'New status message', 'New location').send({
         from: accounts[0],
         gas: '3000000'
       });
 
-    await supplychain.methods.updateShipping('Shipping company 2', accounts[2].address, 'New status message 2', 'New location 2', 'New package status 2')
+    await supplychain.methods.updateShipping('Shipping company 2', 'New status message 2', 'New location 2', 'New package status 2')
             .send({
                     from: accounts[0],
                     gas: '3000000'
                   });
-    await supplychain.methods.updateShipping('Shipping company 3', accounts[3].address, 'New status message 3', 'New location 3', 'New package status 3')
+    await supplychain.methods.updateShipping('Shipping company 3', 'New status message 3', 'New location 3', 'New package status 3')
     .send({
             from: accounts[0],
             gas: '3000000'
