@@ -1,5 +1,5 @@
 import React from 'react';
-import { Menu } from 'semantic-ui-react';
+import { Menu, Icon} from 'semantic-ui-react';
 import { Link } from '../routes';
 
 export default () => {
@@ -14,7 +14,6 @@ export default () => {
            <a className="item">My Orders</a>
          </Link>
        </Menu.Menu>
-
        <Menu.Menu>
          <Link route="/deliveries/">
            <a className="item">My Deliveries</a>
@@ -26,8 +25,9 @@ export default () => {
          </Link>
        </Menu.Menu>
        <Menu.Item position="right">
-          <strong>Supply chain demo</strong>
-       </Menu.Item>       
+          <Icon name='chain'/>
+          <strong>Supply Chain Demo</strong>
+       </Menu.Item>
      </Menu>
    );
 };
