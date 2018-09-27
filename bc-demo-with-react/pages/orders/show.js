@@ -18,6 +18,7 @@ class SupplyShow extends Component {
     }
     const info = {
       buyerName: orderInfo[0],
+      sellerName: orderInfo[1],
       orderNo: orderInfo[2],
       orderDescription: orderInfo[3],
       orderPrice: orderInfo[4],
@@ -27,18 +28,18 @@ class SupplyShow extends Component {
   }
 
   renderOrderInfoCards() {
-    const {buyerName, orderNo, orderDescription, orderPrice, status} = this.props.orderInfo;
+    const {buyerName, sellerName, orderNo, orderDescription, orderPrice, status} = this.props.orderInfo;
 
     const items = [
       {
         header: status,
-        meta: 'Status'
+        meta: 'Order Status'
       }, {
         header: orderNo,
         meta: 'Order No.'
       }, {
-        header: buyerName,
-        meta: 'Buyer name'
+        header: sellerName,
+        meta: 'Seller'
       }, {
         header: orderDescription,
         meta: 'Description'
@@ -81,11 +82,11 @@ class SupplyShow extends Component {
         </Grid.Row>
         <Grid.Row>
           <Card.Group>
-            <Card header={this.props.shippingStatus} meta='Shipping status'/>
+            <Card header={this.props.shippingStatus} meta='Shipping Status'/>
           </Card.Group>
         </Grid.Row>
         <Grid.Row>
-          <h5>Shipping history</h5>
+          <h5>Shipping History</h5>
         </Grid.Row>
         <Grid.Row>
           <List bulleted>

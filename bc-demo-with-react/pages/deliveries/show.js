@@ -43,13 +43,13 @@ class SupplyShow extends Component {
     const items = [
       {
         header: this.state.orderStatus,
-        meta: 'Status'
+        meta: 'Order Status'
       }, {
         header: orderNo,
         meta: 'Order No.'
       }, {
         header: buyerName,
-        meta: 'Buyer name'
+        meta: 'Buyer'
       }, {
         header: orderDescription,
         meta: 'Description'
@@ -71,7 +71,7 @@ class SupplyShow extends Component {
 
     try {
      const accounts = await web3.eth.getAccounts();
-     await supply.methods.startShipping(sellerName, accounts[0], "We start the shipping now!", "China")
+     await supply.methods.startShipping(sellerName, accounts[0], "We are starting the shipping now!", "China")
      .send({
        from: accounts[0]
      });
@@ -117,9 +117,12 @@ class SupplyShow extends Component {
         </Grid.Row>
         <Grid.Row>
           <Card.Group>
-            <Card header={this.state.shippingStatus} meta='Shipping status'/>
+            <Card header={this.state.shippingStatus} meta='Shipping Status'/>
             <Button loading={this.state.loading} onClick={this.startShipping.bind(this)} primary >Start Shipping</Button>
           </Card.Group>
+        </Grid.Row>
+        <Grid.Row>
+          <h5>Shipping History</h5>
         </Grid.Row>
         <Grid.Row>
           <List bulleted>
