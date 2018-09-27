@@ -49,7 +49,7 @@ contract SupplyChain
     struct Shipping
     {
         uint Number;
-        string Status; // NotStarted, InProgress, Cancelled, ReplacedByNewShipping, ConfirmedSuccessfull
+        string Status; // NotStarted, InProgress, Cancelled, ReplacedByNewShipping, ConfirmedSuccessful
     }
 
     struct ShippingStep
@@ -149,7 +149,7 @@ contract SupplyChain
     function confirmReceivedByBuyer(string statusMessage, string location) public restrictedUser{
 
         order.Status = "Shipping Finished";
-        shippings[shippings.length - 1].Status = "Confirmed Successfull";
+        shippings[shippings.length - 1].Status = "Confirmed by user - Successful";
 
         ShippingStep memory ss;
         ss.ShippingNumber = shippings[shippings.length - 1].Number;
@@ -232,12 +232,9 @@ contract SupplyChain
 
     }
 
-
     function refund() public {
-
         // send money from temporaryMoneyStorageAddress (contract) to buyer
         buyerAddress.transfer(address(this).balance);
-
     }
 
     function closeOrder() public {

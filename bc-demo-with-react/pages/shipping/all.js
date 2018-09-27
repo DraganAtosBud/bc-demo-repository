@@ -11,7 +11,7 @@ class OrderAll extends Component {
   static async getInitialProps() {
     const supplies = await factory.methods.getDeployedSupplyChains().call();
     const inProgress = [];
-    for (var i = 0; i < supplies.length; i++) {
+    for (var i = supplies.length -1; i >=0 ; i--) {
       const supply = Supply(supplies[i]);
       const status = await supply.methods.getOrderStatus().call();
       if (status === 'Shipping In Progress') {

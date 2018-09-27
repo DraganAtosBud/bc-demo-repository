@@ -1,22 +1,33 @@
 import React, {Component} from 'react';
-import {Card, Grid, Button, List, Form, Message, Input} from 'semantic-ui-react';
+import {Card, Grid, Button,  Form, Message, Input} from 'semantic-ui-react';
 import web3 from '../../ethereum/web3';
 import Layout from '../../components/Layout';
+import ShippingList from '../../components/ShippingList';
 import Supply from '../../ethereum/supply';
 import { Router } from '../../routes';
 
 class SupplyShow extends Component {
+  constructor(props){
+    super(props);
+    this.state = {
+          errorMessage: '',
+          loading: false,
+          orderStatus : props.orderInfo.status,
+          shippingStatus: props.shippingStatus,
+          confirmStatusMessage: 'Package received',
+          confirmLocation: 'Home',
+          confirmErrorMessage: '',
+          confirmDone: false,
+          refreshShippingList: false
+          };
+  };
+
   static async getInitialProps(props) {
     const supply = Supply(props.query.address);
     const orderInfo = await supply.methods.getOrderInfo().call();
     const orderStatus = await supply.methods.getOrderStatus().call();
     const shippingStatus = await supply.methods.getShippingStatus().call();
-    const shippingStepsCount = await supply.methods.getShippingEntitiesCount().call();
-    const shippingSteps = [];
-    for (var i = 0; i < shippingStepsCount; i++) {
-      const step = await supply.methods.getShippingStep(i).call();
-      shippingSteps.push({shippingNo: step[0], company: step[1], location: step[3], timeStamp: step[4], status: step[5]});
-    }
+
     const info = {
       buyerName: orderInfo[0],
       sellerName: orderInfo[1],
@@ -25,7 +36,7 @@ class SupplyShow extends Component {
       orderPrice: orderInfo[4],
       status: orderStatus
     };
-    return {address: props.query.address, shippingStatus: shippingStatus, orderInfo: info, shippingInfo: shippingSteps};
+    return {address: props.query.address, shippingStatus: shippingStatus, orderInfo: info};
   }
 
   renderOrderInfoCards() {
@@ -33,7 +44,7 @@ class SupplyShow extends Component {
 
     const items = [
       {
-        header: status,
+        header: this.state.orderStatus,
         meta: 'Order Status'
       }, {
         header: orderNo,
@@ -52,36 +63,12 @@ class SupplyShow extends Component {
 
     return <Card.Group items={items}/>;
   }
-
-
-    renderShippingInfoCards() {
-      const shippingSteps = this.props.shippingInfo;
-      let i = 0;
-      const items = shippingSteps.map(step =>
-        <List.Item key={i++}>
-          <List.Content>
-            <List.Header>{(new Date(step.timeStamp*1000)).toString()} - {step.company}</List.Header>
-            <List.Description>{step.status}</List.Description>
-          </List.Content>
-        </List.Item>
-      )
-      return items;
-    }
-
-    state = {
-      confirmStatusMessage: 'done',
-      confirmLocation: 'my home',
-      confirmErrorMessage: '',
-      confirmDone: false,
-      loading: false
-    };
-  
-    onConfirm = async (event) => { 
+    onConfirm = async (event) => {
       event.preventDefault();
       this.setState({ loading: true, confirmErrorMessage: '' });
 
       const mysupply = Supply(this.props.address);
-      
+
       try {
         const accounts = await web3.eth.getAccounts();
         await mysupply.methods
@@ -89,25 +76,30 @@ class SupplyShow extends Component {
           .send({
             from: accounts[0]
           });
-  
+
         this.setState({ confirmDone: true });
-        Router.pushRoute('/orders/');
+        const orderStatus = await mysupply.methods.getOrderStatus().call();
+        const shippingStatus = await mysupply.methods.getShippingStatus().call();
+
+        this.setState({orderStatus: orderStatus, shippingStatus: shippingStatus});
+        await this.callShippingStepsContract(mysupply);
+        this.refreshShippingList();
+
       } catch (err) {
         this.setState({ confirmErrorMessage: err.message, confirmDone: false });
       }
-  
-      this.setState({ loading: false });
+      finally{
+         this.setState({ loading: false });
+      }
+
     };
- 
-    
+
+
     renderConfirm() {
-  
-      const formDisabled = (this.props.orderInfo.status == 'Shipping In Progress')? '': 'disabled';
-      //const formDisabled = (this.props.orderInfo.status != 'Shipping In Progress')? '': 'disabled';
 
       const confirmContent = <Card.Content>
-  
-          <Form onSubmit={this.onConfirm} error={!!this.state.confirmErrorMessage} 
+
+          <Form onSubmit={this.onConfirm} error={!!this.state.confirmErrorMessage}
           loading={this.state.loading} success={this.state.confirmDone} >
           <Form.Field>
               <Input
@@ -117,7 +109,6 @@ class SupplyShow extends Component {
                 placeholder='enter confirmation status message'
                 onChange={event =>
                   this.setState({ confirmStatusMessage: event.target.value })}
-                disabled={formDisabled}
               />
             </Form.Field>
             <Form.Field>
@@ -128,21 +119,25 @@ class SupplyShow extends Component {
                 placeholder='enter location'
                 onChange={event =>
                   this.setState({ confirmLocation: event.target.value })}
-                disabled={formDisabled}
               />
-            </Form.Field>          
+            </Form.Field>
             <Message error header="Oops!" content={this.state.confirmErrorMessage} />
             <Message success header='Confirmed' content="Package received" />
-            <Button icon='check' primary type='submit' disabled={formDisabled} >
+            <Button icon='check' primary type='submit' >
               Confirm
-            </Button> 
+            </Button>
           </Form>
       </Card.Content>;
       return <Card fluid>{confirmContent}</Card>;
-    
     }
 
+  refreshShippingList() {
+    this.setState({refreshShippingList: !this.state.refreshShippingList});
+  };
+
   render() {
+    let {steps, refreshShippingList} = this.state;
+    refreshShippingList = !refreshShippingList;
     return (<Layout>
       <h3>Order {this.props.address}</h3>
       <Grid>
@@ -157,23 +152,19 @@ class SupplyShow extends Component {
         </Grid.Row>
         <Grid.Row>
           <Card.Group>
-            <Card header={this.props.shippingStatus} meta='Shipping Status'/>
+            <Card header={this.state.shippingStatus} meta='Shipping Status'/>
           </Card.Group>
         </Grid.Row>
         <Grid.Row>
           <h5>Shipping History</h5>
         </Grid.Row>
         <Grid.Row>
-          <List bulleted>
-          {this.renderShippingInfoCards()}
-          </List>
+          <ShippingList id={this.props.address} refresh={refreshShippingList} />
         </Grid.Row>
-        <Grid.Row>
-          <h4>Receive package</h4>
-        </Grid.Row>
-        <Grid.Row>
+        {this.state.orderStatus == 'Shipping In Progress' && (<Grid.Row>
+            <h4>Receive package</h4>
           {this.renderConfirm()}
-        </Grid.Row>
+        </Grid.Row>)}
       </Grid>
     </Layout>);
   }

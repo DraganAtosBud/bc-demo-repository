@@ -10,6 +10,7 @@ class DeliveriesIndex extends Component {
   static async getInitialProps() {
     const accounts = await web3.eth.getAccounts();
     const supplies = await factory.methods.getDeployedSupplyChainsBySeller().call({from:accounts[0]});
+    supplies.reverse();
     return { supplies };
     }
 
