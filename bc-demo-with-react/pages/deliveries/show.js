@@ -103,6 +103,11 @@ class SupplyShow extends Component {
 
 
   render() {
+
+    const StartShippingButton = () => (
+      <Button loading={this.state.loading} onClick={this.startShipping.bind(this)} primary >Start Shipping</Button>
+    );
+
     return (<Layout>
       <h3>Order {this.props.address}</h3>
       <Grid>
@@ -118,7 +123,7 @@ class SupplyShow extends Component {
         <Grid.Row>
           <Card.Group>
             <Card header={this.state.shippingStatus} meta='Shipping Status'/>
-            <Button loading={this.state.loading} onClick={this.startShipping.bind(this)} primary >Start Shipping</Button>
+            {this.state.shippingStatus == "Shipping Not Started" && <StartShippingButton />}
           </Card.Group>
         </Grid.Row>
         <Grid.Row>
