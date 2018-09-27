@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {Card, Grid, Button, List} from 'semantic-ui-react';
+import {Card, Grid, Button, Header, Icon} from 'semantic-ui-react';
 import web3 from '../../ethereum/web3';
 import Layout from '../../components/Layout';
 import ShippingList from '../../components/ShippingList';
@@ -94,13 +94,19 @@ class SupplyShow extends Component {
       <h3>Order {this.props.address}</h3>
       <Grid>
         <Grid.Row>
-          <h4>Order Information</h4>
+        <Header as='h4' block>
+          <Icon name='archive'/>
+          <Header.Content>Order Information</Header.Content>
+        </Header>
         </Grid.Row>
         <Grid.Row>
           {this.renderOrderInfoCards()}
         </Grid.Row>
         <Grid.Row>
-          <h4>Shipping Information</h4>
+          <Header as='h4' block>
+            <Icon name='truck'/>
+            <Header.Content>Shipping Information</Header.Content>
+          </Header>
         </Grid.Row>
         <Grid.Row>
           <Card.Group>

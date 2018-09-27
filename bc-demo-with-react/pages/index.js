@@ -42,7 +42,7 @@ class SupplyIndex extends Component{
       {name: 'Product 3', price:'0.01', sellerName:'Adam Seller 2', seller:'0x690a4f7a854ccfb3e83abbdb5a19e16413e96c55'},
       {name: 'Product 4', price:'0.02', sellerName:'Dragan Seller 1', seller:'0x486B0764390E78d90d6e269c9C9531f14365fE6F'},
       {name: 'Product 5', price:'0.03', sellerName:'Dragan Seller 2', seller:'0xFaC38D0bF10382349F43db4fDee5A51e462aA53e'},
-      {name: 'Product 6', price:'0.0001', sellerName:'Misi Seller 1', seller:'0x39eccc43958d89175b0b636129523d8af469977c'}   
+      {name: 'Product 6', price:'0.0001', sellerName:'Misi Seller 1', seller:'0x39eccc43958d89175b0b636129523d8af469977c'}
     ]
     .map(p=>{
       return{
