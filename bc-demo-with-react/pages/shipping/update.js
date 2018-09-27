@@ -7,13 +7,18 @@ import factory from '../../ethereum/factory';
 import Supply from '../../ethereum/supply';
 
 class OrderUpdate extends Component {
-  state = {
-    errorMessage: '',
-    loading: false,
-    company: '',
-    location: '',
-    status: ''
-  };
+  constructor(props){
+    super(props);
+    this.state = {
+      errorMessage: '',
+      loading: false,
+      company: '',
+      location: '',
+      status: '',
+      steps: this.createShippingListItems(props.shippingInfo)
+        };
+  }
+
   static async getInitialProps(props) {
     const supply = Supply(props.query.address);
     const shippingStatus = await supply.methods.getShippingStatus().call();
@@ -26,18 +31,21 @@ class OrderUpdate extends Component {
     return {address: props.query.address, shippingStatus: shippingStatus, shippingInfo: shippingSteps};
   };
 
-  renderShippingInfoList() {
-
-    const shippingSteps = this.props.shippingInfo;
+  createShippingListItems(shippingSteps) {
     let i = 0;
-    const items = shippingSteps.map(step => <List.Item key={i++}>
-      <List.Content>
-        <List.Header>{(new Date(step.timeStamp * 1000)).toString()}
-          - {step.company}</List.Header>
-        <List.Description>{step.status}</List.Description>
-      </List.Content>
-    </List.Item>)
+    const items = shippingSteps.map(step => {return {header: (new Date(step.timeStamp * 1000)).toString() + ' - ' + step.company,
+      key: i++, description: step.status}});
     return items;
+  };
+
+  async callShippingStepsContract(supply){
+    const shippingStepsCount = await supply.methods.getShippingEntitiesCount().call();
+    const shippingSteps = [];
+    for (var i = 0; i < shippingStepsCount; i++) {
+      const step = await supply.methods.getShippingStep(i).call();
+      shippingSteps.push({shippingNo: step[0], company: step[1], location: step[3], timeStamp: step[4], status: step[5]});
+    }
+    this.setState({steps:this.createShippingListItems(shippingSteps)});
   };
 
   onSubmit = async event => {
@@ -48,7 +56,8 @@ class OrderUpdate extends Component {
       const accounts = await web3.eth.getAccounts();
       const supply = Supply(this.props.address);
 
-      await supply.methods.updateShipping(this.state.company, accounts[0], this.state.status, this.state.location, 'OK').send({from: accounts[0]});
+      await supply.methods.updateShipping(this.state.company, this.state.status, this.state.location, 'OK').send({from: accounts[0]});
+      await this.callShippingStepsContract(supply);
     } catch (e) {
       this.setState({errorMessage: e.message});
     }
@@ -58,6 +67,7 @@ class OrderUpdate extends Component {
     }
   };
   render() {
+    let {steps} = this.state;
     return (<Layout>
       <h3>Update shipping for order {this.props.address}</h3>
       <Form onSubmit={this.onSubmit} error={!!this.state.errorMessage} style={{ marginBottom: 10 }}>
@@ -80,8 +90,7 @@ class OrderUpdate extends Component {
       </Form>
       <div>
         <h3>Shipping history</h3>
-        <List bulleted="bulleted">
-          {this.renderShippingInfoList()}
+        <List bulleted="bulleted" items={steps}>
         </List>
       </div>
     </Layout>);
