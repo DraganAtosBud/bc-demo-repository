@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Card, Button, Message } from 'semantic-ui-react';
+import { Card, Button, Message, Input, Label } from 'semantic-ui-react';
 import factory from '../ethereum/factory';
 import web3 from '../ethereum/web3';
 import Layout from '../components/Layout';
@@ -10,7 +10,8 @@ class SupplyIndex extends Component{
 
   state = {
       errorMessage: '',
-      loading: false
+      loading: false,
+      buyerName: 'Adam'
     };
 
   buyProduct = async (product, event) => {
@@ -21,7 +22,7 @@ class SupplyIndex extends Component{
     try {
      const accounts = await web3.eth.getAccounts();
      await factory.methods
-       .createSupplyChain('Adam', product.name, web3.utils.toWei(product.price), product.seller, product.sellerName)
+       .createSupplyChain(this.state.buyerName, product.name, web3.utils.toWei(product.price), product.seller, product.sellerName)
        .send({
          from: accounts[0], value: web3.utils.toWei(product.price)
        });
@@ -65,6 +66,7 @@ class SupplyIndex extends Component{
       <Layout>
         <div>
           <h3>Products</h3>
+          <Input label='Your name' value={this.state.buyerName} style={{ marginBottom: 10 }} onChange={event => this.setState({buyerName: event.target.value})}/>
           {this.state.errorMessage !== '' ? <Message error header="Oops!" content={this.state.errorMessage} /> :null}
           {this.renderProducts()}
         </div>
