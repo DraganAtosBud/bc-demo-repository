@@ -25,6 +25,9 @@ export default () => {
            <a className="item">In progress</a>
          </Link>
        </Menu.Menu>
+       <Menu.Item position="right">
+          <strong>Supply chain demo</strong>
+       </Menu.Item>       
      </Menu>
    );
 };

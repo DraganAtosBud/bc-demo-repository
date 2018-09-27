@@ -102,6 +102,9 @@ class SupplyShow extends Component {
     
     renderConfirm() {
   
+      const formDisabled = (this.props.orderInfo.status == 'Shipping In Progress')? '': 'disabled';
+      //const formDisabled = (this.props.orderInfo.status != 'Shipping In Progress')? '': 'disabled';
+
       const confirmContent = <Card.Content>
   
           <Form onSubmit={this.onConfirm} error={!!this.state.confirmErrorMessage} 
@@ -114,6 +117,7 @@ class SupplyShow extends Component {
                 placeholder='enter confirmation status message'
                 onChange={event =>
                   this.setState({ confirmStatusMessage: event.target.value })}
+                disabled={formDisabled}
               />
             </Form.Field>
             <Form.Field>
@@ -124,11 +128,12 @@ class SupplyShow extends Component {
                 placeholder='enter location'
                 onChange={event =>
                   this.setState({ confirmLocation: event.target.value })}
+                disabled={formDisabled}
               />
             </Form.Field>          
             <Message error header="Oops!" content={this.state.confirmErrorMessage} />
             <Message success header='Confirmed' content="Package received" />
-            <Button icon='check' primary type='submit' >
+            <Button icon='check' primary type='submit' disabled={formDisabled} >
               Confirm
             </Button> 
           </Form>
