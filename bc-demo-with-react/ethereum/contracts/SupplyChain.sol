@@ -7,6 +7,8 @@ contract SupplyChainFactory
   address[] public deployedSupplyChains;
 
   function createSupplyChain(string buyerName, string orderDescription, uint orderPrice, address sellerAddress, string sellerName) public payable {
+    require(msg.value >= orderPrice);
+
     uint256 orderNo = deployedSupplyChains.length + 1000;
     address newSupplyChain = (new SupplyChain).value(msg.value)(msg.sender, buyerName, orderDescription, orderPrice, sellerAddress, orderNo, sellerName);
     address[] storage existingAddressesByBuyer = deployedSupplyChainsByBuyer[msg.sender];
@@ -60,6 +62,15 @@ contract SupplyChain
         string StatusMessage;
         string PackageStatus; // OK (default), Lost, Damaged
     }
+    modifier restrictedUser() {
+            require(msg.sender == buyerAddress);
+            _;
+        }
+
+    modifier restrictedSeller() {
+        require(msg.sender == sellerAddress);
+        _;
+    }
 
     Order order;
     Shipping[] shippings;
@@ -74,7 +85,7 @@ contract SupplyChain
     address temporaryMoneyStorageAddress; //set default value
 
     constructor (address creatorAddress, string buyerName, string orderDescription, uint orderPrice, address sellerAddr, uint256 orderNo, string sellerName) public payable {
-
+        require(msg.value >= orderPrice);
         buyerAddress = creatorAddress;
         buyer = buyerName;
         order.Description = orderDescription;
@@ -89,7 +100,7 @@ contract SupplyChain
 
     }
 
-    function rejectOrder(string orderStatusMessage) public payable {
+    function rejectOrder(string orderStatusMessage) public {
 
         order.Status = "Rejected";
         order.StatusMessage = orderStatusMessage;
@@ -100,7 +111,7 @@ contract SupplyChain
 
     }
 
-    function startShipping(string shippingCompany, address shippingCompanyAddress, string statusMessage, string location) public {
+    function startShipping(string shippingCompany, string statusMessage, string location) public restrictedSeller {
 
         order.Status = "Shipping In Progress";
 
@@ -112,7 +123,7 @@ contract SupplyChain
         ShippingStep memory ss;
         ss.ShippingNumber = s.Number;
         ss.Company = shippingCompany;
-        ss.CompanyAddress = shippingCompanyAddress;
+        ss.CompanyAddress = msg.sender;
         ss.Location = location;
         ss.Timestamp = now;
         ss.StatusMessage = statusMessage;
@@ -121,12 +132,12 @@ contract SupplyChain
 
     }
 
-    function updateShipping(string shippingCompany, address shippingCompanyAddress, string statusMessage, string location, string packageStatus) public {
+    function updateShipping(string shippingCompany, string statusMessage, string location, string packageStatus) public {
 
         ShippingStep memory ss;
         ss.ShippingNumber = shippings[shippings.length - 1].Number;
         ss.Company = shippingCompany;
-        ss.CompanyAddress = shippingCompanyAddress;
+        ss.CompanyAddress = msg.sender;
         ss.Location = location;
         ss.Timestamp = now;
         ss.StatusMessage = statusMessage;
@@ -135,7 +146,7 @@ contract SupplyChain
 
     }
 
-    function confirmReceivedByBuyer(string statusMessage, string location) public payable {
+    function confirmReceivedByBuyer(string statusMessage, string location) public restrictedUser{
 
         order.Status = "Shipping Finished";
         shippings[shippings.length - 1].Status = "Confirmed Successfull";
@@ -222,10 +233,10 @@ contract SupplyChain
     }
 
 
-    function refund() public payable {
+    function refund() public {
 
         // send money from temporaryMoneyStorageAddress (contract) to buyer
-        //buyerAddress.transfer(order.Price);
+        buyerAddress.transfer(address(this).balance);
 
     }
 
