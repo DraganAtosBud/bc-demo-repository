@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {Card, Grid, Button, Form, Header, Icon, Input} from 'semantic-ui-react';
+import {Card, Grid, Button, Form, Header, Icon, Input, Message} from 'semantic-ui-react';
 import web3 from '../../ethereum/web3';
 import Layout from '../../components/Layout';
 import ShippingList from '../../components/ShippingList';
