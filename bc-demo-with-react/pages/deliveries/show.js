@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {Card, Grid, Button, Header, Icon, Input} from 'semantic-ui-react';
+import {Card, Grid, Button, Header, Icon, Input, Message} from 'semantic-ui-react';
 import web3 from '../../ethereum/web3';
 import Layout from '../../components/Layout';
 import ShippingList from '../../components/ShippingList';
@@ -14,7 +14,8 @@ class SupplyShow extends Component {
           orderStatus : props.orderInfo.status,
           shippingStatus: props.shippingStatus,
           refreshShippingList: false,
-          location: ''
+          location: '',
+          message: 'We are starting the shipping now!'
       };
   };
 
@@ -67,7 +68,7 @@ class SupplyShow extends Component {
 
     try {
      const accounts = await web3.eth.getAccounts();
-     await supply.methods.startShipping(sellerName, "We are starting the shipping now!", this.state.location)
+     await supply.methods.startShipping(sellerName, this.state.message, this.state.location)
      .send({
        from: accounts[0]
      });
@@ -89,11 +90,13 @@ class SupplyShow extends Component {
   renderShippingButton(){
     return(
     <div>
-      <Input style={{marginRight: '10px'}} onChange={event => this.setState({ location: event.target.value })} />
+      <Input labelPosition='left' label='Shipping from' placeholder='Location' style={{marginRight: '10px'}} onChange={event => this.setState({ location: event.target.value })} />
+      <Input labelPosition='left' label='Info from Seller' placeholder='Message' style={{marginRight: '10px'}} onChange={event => this.setState({ message: event.target.value })} />
       <Button loading={this.state.loading} disabled={!this.state.location} onClick={this.startShipping.bind(this)} primary >Start Shipping</Button>
+      {this.state.errorMessage !== '' ? <Message error header="Oops!" content={this.state.errorMessage} /> :null}
     </div>);
   };
-  
+
   render() {
     let {steps, refreshShippingList} = this.state;
     return (<Layout>

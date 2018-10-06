@@ -102,23 +102,23 @@ class SupplyShow extends Component {
           <Form onSubmit={this.onConfirm} error={!!this.state.confirmErrorMessage}
           loading={this.state.loading} success={this.state.confirmDone} >
           <Form.Field>
+            <Input
+              label="Package Received At"
+              labelPosition="left"
+              placeholder='Location'
+              value={this.state.confirmLocation}
+              onChange={event =>
+                this.setState({ confirmLocation: event.target.value })}
+            />
+          </Form.Field>
+          <Form.Field>
               <Input
-                label="Status Message"
-                labelPosition="right"
+                label="Confirmation Message"
+                labelPosition="left"
                 value={this.state.confirmStatusMessage}
-                placeholder='enter confirmation status message'
+                placeholder='Confirmation Message'
                 onChange={event =>
                   this.setState({ confirmStatusMessage: event.target.value })}
-              />
-            </Form.Field>
-            <Form.Field>
-              <Input
-                label="Location"
-                labelPosition="right"
-                value={this.state.confirmLocation}
-                placeholder='enter location'
-                onChange={event =>
-                  this.setState({ confirmLocation: event.target.value })}
               />
             </Form.Field>
             <Message error header="Oops!" content={this.state.confirmErrorMessage} />

@@ -11,7 +11,7 @@ class SupplyIndex extends Component{
   state = {
       errorMessage: '',
       loading: false,
-      buyerName: 'Adam'
+      buyerName: 'Demo Presenter'
     };
 
   buyProduct = async (product, event) => {
@@ -66,7 +66,7 @@ class SupplyIndex extends Component{
       <Layout>
         <div>
           <h3>Products</h3>
-          <Input label='Your name' value={this.state.buyerName} style={{ marginBottom: 10 }} onChange={event => this.setState({buyerName: event.target.value})}/>
+          <Input label="Buyer's Name" value={this.state.buyerName} style={{ marginBottom: 10 }} onChange={event => this.setState({buyerName: event.target.value})}/>
           {this.state.errorMessage !== '' ? <Message error header="Oops!" content={this.state.errorMessage} /> :null}
           {this.renderProducts()}
         </div>

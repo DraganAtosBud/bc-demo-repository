@@ -56,7 +56,7 @@ class OrderUpdate extends Component {
       <h3>Update shipping for order {this.props.address}</h3>
       <Form onSubmit={this.onSubmit} error={!!this.state.errorMessage} style={{ marginBottom: 10 }}>
         <Form.Field>
-          <Label>Your company's name</Label>
+          <Label>Shipping company</Label>
           <Input onChange={event => this.setState({company: event.target.value})}/>
         </Form.Field>
         <Form.Field>
@@ -64,7 +64,7 @@ class OrderUpdate extends Component {
           <Input onChange={event => this.setState({status: event.target.value})}/>
         </Form.Field>
         <Form.Field>
-          <Label>Package's current location</Label>
+          <Label>Current location of the package</Label>
           <Input onChange={event => this.setState({location: event.target.value})}/>
         </Form.Field>
         <Message error="error" header="Oops!" content={this.state.errorMessage}/>
